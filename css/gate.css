@@ -1,0 +1,268 @@
+/* Kuća Car · the way in: list A360, one more sheet in BINARH's set (concept A, chosen 2026-10-17).
+   The ground-floor plan is drawn in ink, a parallel rule leaves the plan render behind it, and the black
+   "broj nacrta" cell of the title block is the way in. Tokens live on #gate / #wipe so the tour keeps its own. */
+/* List A360, one more sheet in BINARH's set. The ground-floor plan is drawn in ink first; a parallel
+   rule slides over it and leaves the plan render behind, then rests on the plan's edge as its scale.
+   Below it the architect's title block, whose black "broj nacrta" cell is the way in. The same rule
+   crosses the screen once more to hand the sheet over to the walk. One weight of rule, opaque paper,
+   nothing that glows, floats or rounds off. */
+#gate, #wipe {
+  --paper: #f5f2ec; --paper-2: #ebe5da; --ink: #26231f; --ink-2: #635d54; --ink-3: #9a9286;
+  --rule: rgba(38, 35, 31, .82); --hair: rgba(38, 35, 31, .18);
+  --poche: #5a544c; --line: #26231f; --hatch: rgba(38, 35, 31, .22);
+  --terra: #b04a2c; --acc: #3d5a48;
+  --stamp: #26231f; --on-stamp: #f5f2ec; --stamp-rule: #26231f;
+  --render-filter: none;
+  --sans: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  --serif: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --sl: env(safe-area-inset-left, 0px); --sr: env(safe-area-inset-right, 0px);
+  --st: env(safe-area-inset-top, 0px); --sb: env(safe-area-inset-bottom, 0px);
+  --m: 7px; --p: 11px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) #gate, :root:not([data-theme="light"]) #wipe {
+    --paper: #1c1a17; --paper-2: #26231f; --ink: #ece6dc; --ink-2: #aaa297; --ink-3: #7a7369;
+    --rule: rgba(236, 230, 220, .72); --hair: rgba(236, 230, 220, .17);
+    --poche: #bdb4a6; --line: #ece6dc; --hatch: rgba(236, 230, 220, .2);
+    --terra: #d9805d; --acc: #4f7360;
+    --stamp: #0f0e0c; --on-stamp: #ece6dc; --stamp-rule: #ece6dc;
+    --render-filter: brightness(.8) contrast(1.05);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] #gate, :root[data-theme="dark"] #wipe {
+  --paper: #1c1a17; --paper-2: #26231f; --ink: #ece6dc; --ink-2: #aaa297; --ink-3: #7a7369;
+  --rule: rgba(236, 230, 220, .72); --hair: rgba(236, 230, 220, .17);
+  --poche: #bdb4a6; --line: #ece6dc; --hatch: rgba(236, 230, 220, .2);
+  --terra: #d9805d; --acc: #4f7360;
+  --stamp: #0f0e0c; --on-stamp: #ece6dc; --stamp-rule: #ece6dc;
+  --render-filter: brightness(.8) contrast(1.05);
+  color-scheme: dark;
+}
+#gate button { margin: 0; text-align: inherit; }
+#gate :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+#gate .num { font-variant-numeric: tabular-nums lining-nums; }
+
+/* the sheet and its border */
+#gate { position: fixed; inset: 0; z-index: 10; background: var(--paper); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+#gate.gone { visibility: hidden; pointer-events: none; }
+.sheet { position: relative; min-height: 100%; display: flex; flex-direction: column; background: var(--paper);
+  padding: calc(var(--st) + var(--m) + var(--p)) calc(var(--sr) + var(--m) + var(--p)) calc(var(--sb) + var(--m)) calc(var(--sl) + var(--m) + var(--p)); }
+.frame { position: absolute; pointer-events: none; border: 1px solid var(--rule);
+  top: calc(var(--st) + var(--m)); right: calc(var(--sr) + var(--m)); bottom: calc(var(--sb) + var(--m)); left: calc(var(--sl) + var(--m)); }
+/* DIN fold marks: short ticks outside the border where an A1 sheet folds down to A4 */
+.frame i { display: none; position: absolute; background: var(--rule); }
+.frame i.v { width: 1px; height: 7px; top: -8px; } .frame i.v.b { top: auto; bottom: -8px; }
+.frame i.h { height: 1px; width: 7px; left: -8px; }
+
+/* the drawing field: the render, the ink, the rule */
+.field { position: relative; flex: 1 1 auto; min-height: 300px; }
+.plot { position: absolute; inset: 0; transform-origin: 0 0; }
+.rbox { position: absolute; overflow: hidden; background: var(--paper-2); clip-path: inset(0 0 100% 0); }
+.rbox img { position: absolute; display: block; max-width: none; transform-origin: 50% 50%; filter: var(--render-filter); }
+.plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none;
+  font-family: var(--sans); font-variant-numeric: tabular-nums lining-nums; }
+
+
+/* the ink: theme ink on paper; where it lies on the render it carries a paper halo, as text does over
+   a hatched area on A010 */
+#ink text { fill: var(--ink); }
+#gate .halo { stroke: var(--paper); stroke-width: 3px; stroke-linejoin: round; paint-order: stroke; }
+#ink .poche { fill: var(--poche); }
+#ink .wall { stroke: var(--line); stroke-width: 1; fill: none; stroke-linecap: square; }
+#ink .thin { stroke: var(--line); stroke-width: .6; fill: none; }
+#ink .water { fill: url(#hatch); stroke: var(--line); stroke-width: .8; }
+#ink .tree { stroke: var(--line); stroke-width: .6; fill: none; }
+#ink .prop { stroke: var(--terra); stroke-width: 1.6; fill: none; stroke-dasharray: 7 3.5; }
+#ink .sect path { stroke: var(--ink-2); stroke-width: .7; fill: none; stroke-dasharray: 12 3 2 3; }
+#ink .sect text { font-size: 9px; fill: var(--ink-2); }
+#ink .sbar { stroke: var(--ink); stroke-width: 2.2; fill: none; }
+#ink .lvl circle, #ink .lvl path { stroke: var(--ink); stroke-width: .8; fill: none; }
+#ink .lvl text { font-size: 8.5px; }
+#ink .wpt { fill: var(--paper); stroke: var(--line); stroke-width: 1; }
+#ink .room text { font-size: 9px; text-anchor: middle; }
+#ink .room text.n { font-weight: 600; }
+/* what stays drawn on the render once the rule has passed */
+#ink .over .wall { stroke: rgba(28, 25, 22, .55); stroke-width: .9; }
+#ink .over .wpt { fill: #f5f2ec; stroke: #1c1a17; stroke-width: 1.1; }
+#ink .over .room text { font-weight: 500; }
+/* dimension chains: A010's slash ticks, the number above the line */
+#ink .dim path { stroke: var(--ink); stroke-width: .8; fill: none; }
+#ink .dim path.u { stroke: var(--paper); stroke-width: 2.6; opacity: .85; }
+#ink .dim text { font-size: 9px; }
+#ink .frm { fill: none; stroke: var(--ink); stroke-width: 1; }
+/* north: a circle and one heavy bar toward north, as on every BINARH sheet */
+#ink .nar circle { fill: var(--paper); stroke: var(--ink); stroke-width: 1; }
+#ink .nar path { fill: var(--ink); }
+#ink .nar text { font-size: 9px; font-weight: 600; }
+/* the parallel rule */
+#ink .ruler rect.band { fill: var(--paper); stroke: var(--ink); stroke-width: 1; }
+#ink .ruler path { stroke: var(--ink); stroke-width: .8; fill: none; }
+#ink .ruler text { font-size: 8.5px; fill: var(--ink-2); opacity: 0; transition: opacity .5s ease .1s; }
+#ink .ruler.rest text { opacity: 1; }
+/* where the walk begins: A010's entrance triangle, the field of view as two thin rays and an arc */
+#gate .start .ray { stroke: var(--ink); stroke-width: .8; fill: none; }
+#gate .start .ray.u { stroke: var(--paper); stroke-width: 2.6; opacity: .8; }
+#gate .start .tri { fill: var(--ink); stroke: var(--paper); stroke-width: 1.4; stroke-linejoin: miter; }
+#gate .start text { font-size: 9px; font-weight: 600; letter-spacing: .02em; fill: var(--ink); }
+#gate .start text.nm { font-size: 10.5px; font-weight: 500; letter-spacing: 0; }
+#gate .start .lead { stroke: var(--ink); stroke-width: .7; fill: none; }
+/* on the render: the render is the same in both themes, so is the ink drawn on it */
+#gate .on .ray, #gate .on .lead, #ink .over .dim path { stroke: #1c1a17; }
+#gate .on .ray.u, #ink .over .dim path.u { stroke: #f5f2ec; }
+#gate .on .tri { fill: #1c1a17; stroke: #f5f2ec; }
+#ink .over text, #gate .on text { fill: #1c1a17; }
+#ink .over .halo, #gate .on .halo { stroke: rgba(245, 242, 236, .86); }
+#gate .cap { margin: 0; font-size: 12px; line-height: 1.3; color: var(--ink-2); white-space: nowrap; }
+
+
+/* above the title block, as on A010: the notes on the left, the sheet's name on the right (bold,
+   mixed case). The title block itself sits in the border's bottom-right corner; its rules are the
+   border's, and the black "broj nacrta" cell fills the corner. */
+.side { flex: none; display: flex; flex-direction: column; margin: 0 calc(-1 * var(--p)); }
+.a050, .index, .mnv { display: none; }
+.sname { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 7px var(--p) 7px; }
+.notes { margin: 0; min-width: 0; font-size: 12px; line-height: 1.36; color: var(--ink-2); }
+.notes .cap { color: var(--ink); }
+.mnv { font-size: 11px; color: var(--ink-2); white-space: nowrap; }
+.tb { position: relative; border-top: 1.5px solid var(--ink); }
+.tb .hd { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 7px var(--p) 0; }
+.tb h1 { margin: 0; font-family: var(--serif); font-weight: 500; font-size: 42px; line-height: .92; letter-spacing: -.01em; white-space: nowrap; }
+.tb .sn { display: flex; flex-direction: column; align-items: flex-end; padding-bottom: 2px; }
+.tb h2 { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.1; letter-spacing: -.005em; white-space: nowrap; }
+.mj { font-size: 12px; color: var(--ink-2); white-space: nowrap; margin-top: 2px; }
+.mj b { font-weight: 500; color: var(--ink); }
+.inv { margin: 0; padding: 6px var(--p) 8px; font-size: 14.5px; font-weight: 600; line-height: 1.32; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 132px; border-top: 1px solid var(--rule); }
+.fl { margin: 0; padding: 0 10px 2px var(--p); }
+.fl > div { display: grid; grid-template-columns: 84px minmax(0, 1fr); align-items: baseline; min-height: 20px; padding: 2px 0 1px; }
+.fl > div + div { border-top: 1px solid var(--hair); }
+.fl dt { font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.fl dd { margin: 0; font-size: 13.5px; font-weight: 500; line-height: 1.25; min-width: 0; }
+.fl dd small { display: block; font-size: 12px; font-weight: 400; color: var(--ink-2); line-height: 1.3; }
+.ring { display: inline-block; width: 8px; height: 8px; border: 1px solid var(--ink); border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+
+/* the way in: the title block's black "broj nacrta" cell. While the tour loads it is a section hatch
+   that stays still; the black is inked in from the left at each step the loader reports. */
+#go { position: relative; display: block; width: 100%; min-height: 128px; color: var(--ink); text-align: left;
+  border: 0; border-left: 1.5px solid var(--stamp-rule);
+  background: repeating-linear-gradient(-45deg, var(--hatch) 0 1px, transparent 1px 6px) var(--paper); }
+#go .lay { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 7px 9px 9px 10px; }
+#go .ink { background: var(--stamp); color: var(--on-stamp); clip-path: inset(0 calc(100% - var(--fill, 0) * 100%) 0 0);
+  transition: clip-path .45s cubic-bezier(.5, 0, .2, 1), background-color .2s; }
+#go .no small { display: block; font-size: 12px; line-height: 1.2; opacity: .85; }
+#go .no b { display: block; font-size: 15.5px; font-weight: 600; line-height: 1.15; letter-spacing: .01em; }
+#go .act { margin-top: auto; font-size: 21px; font-weight: 600; line-height: 1.06; letter-spacing: -.005em; }
+#go:disabled { cursor: progress; }
+#go:disabled .base .act { color: var(--ink-2); font-weight: 500; }
+/* A010's ULAZ: a solid triangle, the word lettered upright behind it */
+#go .ulaz { position: absolute; right: 9px; bottom: 10px; display: flex; align-items: flex-end; gap: 3px; visibility: hidden; }
+#go .ulaz i { font-style: normal; font-size: 9px; font-weight: 600; letter-spacing: .06em; writing-mode: vertical-rl; transform: rotate(180deg); line-height: 1; }
+#go .ulaz svg { width: 11px; height: 13px; fill: currentColor; transition: transform .2s; }
+#go:not(:disabled) .ulaz { visibility: visible; }
+#go:not(:disabled) .act { padding-right: 30px; }
+#go:not(:disabled):hover .ink, #go:focus-visible .ink { background: var(--acc); }
+#go:not(:disabled):hover .ulaz svg, #go:focus-visible .ulaz svg { transform: translateX(2px); }
+#go:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+#go.err { min-height: 0; }
+#go.err .base { position: relative; } #go.err .ink { display: none; }
+#go.err .ulaz { visibility: hidden; } #go.err .act { padding-right: 0; }
+#go.err .act { font-size: 13px; font-weight: 500; line-height: 1.3; margin-top: 8px; }
+
+/* the hand-over: the walk's stand-in behind the sheet, and the rule that crosses to it */
+#gate.leaving .field { z-index: 2; }
+#wipe { position: fixed; z-index: 11; left: 0; top: 0; pointer-events: none; display: none; }
+#wipe.on { display: block; }
+#wipe rect { fill: var(--paper); stroke: var(--ink); stroke-width: 1; }
+#wipe path { stroke: var(--ink); stroke-width: .8; fill: none; }
+@media (prefers-reduced-motion: reduce) { #go .ink { transition: none; } }
+
+
+/* desktop: an inset of the house from the air (A050 Prostorni prikaz) and the sheet's contents */
+.a050 { margin: 0 0 20px; }
+.a050 .im { position: relative; aspect-ratio: 840 / 525; border: 1px solid var(--ink); background: var(--paper-2); overflow: hidden; }
+.a050 img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity .6s ease; }
+.a050 img.in { opacity: 1; }
+.a050 figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding-top: 6px; }
+.a050 figcaption b { font-size: 13.5px; font-weight: 600; }
+.a050 figcaption span { font-size: 12px; color: var(--ink-2); }
+.index h2 { margin: 0 0 5px; font-size: 13.5px; font-weight: 600; }
+.index ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.index li { border-bottom: 1px solid var(--hair); }
+.ent { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto 16px; align-items: baseline; gap: 8px; width: 100%; padding: 6px 2px 7px 0; font-size: 14px; }
+.ent .k { font-size: 12px; color: var(--ink-2); text-transform: none; letter-spacing: 0; font-weight: 400; }
+.ent .v { font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.ent svg { width: 8px; height: 10px; fill: currentColor; justify-self: end; opacity: .35; transition: opacity .2s, transform .2s; }
+.ent:disabled { cursor: progress; color: var(--ink-2); }
+.ent:not(:disabled):hover, .ent:focus-visible { background: var(--paper-2); outline-offset: 0; }
+.ent:not(:disabled):hover svg, .ent:focus-visible svg { opacity: 1; transform: translateX(2px); }
+
+@media (min-width: 900px) and (min-height: 600px) {
+  #gate { --m: 14px; --p: 22px; }
+  .frame i { display: block; }
+  .sheet { flex-direction: row; gap: 40px; }
+  .field { min-height: 0; }
+  .side { width: 404px; justify-content: flex-end; margin: 0 calc(-1 * var(--p)) 0 0; }
+  .a050, .index { display: block; padding-right: var(--p); }
+  .mnv { display: block; }
+  .sname { padding: 8px var(--p) 8px 0; }
+  .tb h2 { font-size: 22px; } .mj { margin-top: 4px; }
+  .tb .hd { padding: 9px var(--p) 0 0; }
+  .tb h1 { font-size: 52px; }
+  .inv { padding: 6px var(--p) 12px 0; font-size: 15.5px; }
+  .grid { grid-template-columns: minmax(0, 1fr) 156px; }
+  .fl { padding-left: 0; }
+  .fl > div { grid-template-columns: 96px minmax(0, 1fr); min-height: 26px; padding: 4px 0 3px; }
+  .fl dt { font-size: 12.5px; } .fl dd { font-size: 14.5px; }
+  #go { min-height: 150px; }
+  #go .lay { padding: 9px 12px 12px 13px; }
+  #go .no b { font-size: 17px; }
+  #go .act { font-size: 23px; }
+  #go .ulaz { right: 12px; bottom: 13px; }
+}
+@media (min-width: 900px) and (min-height: 600px) and (max-height: 820px) {
+  .index h2 { display: none; }
+  .a050 { margin-bottom: 14px; }
+  .tb h1 { font-size: 46px; }
+  .fl > div { min-height: 24px; padding: 3px 0 2px; }
+}
+
+/* a tablet held upright: the plan takes the width, the title block keeps to the corner */
+@media (min-width: 600px) and (max-width: 899px) and (min-height: 600px) {
+  .side { align-self: flex-end; width: min(100% + 2 * var(--p), 520px); margin-left: 0; }
+  .sname { padding-left: 0; } .tb { border-left: 1px solid var(--rule); }
+}
+
+/* a phone held sideways: the plan on the left, the title block beside it in the corner */
+@media (max-height: 599px) and (min-width: 600px) {
+  .sheet { flex-direction: row; gap: 18px; }
+  .field { min-height: 0; }
+  .side { width: 360px; justify-content: flex-end; margin: 0 calc(-1 * var(--p)) 0 0; }
+  .fl > div { grid-template-columns: 78px minmax(0, 1fr); }
+  .sname { padding-left: 0; } .tb .hd, .inv { padding-left: 0; } .fl { padding-left: 0; }
+  .tb h1 { font-size: 32px; }
+  .inv { font-size: 13.5px; padding-bottom: 6px; }
+  .fl > div { min-height: 20px; padding: 2px 0 1px; } .fl .opt { display: none; }
+  .grid { grid-template-columns: minmax(0, 1fr) 116px; }
+  #go { min-height: 0; } #go .act { font-size: 19px; }
+}
+
+/* a narrow phone (360 px Android): the stamp and the labels give a little */
+@media (max-width: 374px) {
+  .grid { grid-template-columns: minmax(0, 1fr) 116px; }
+  .fl > div { grid-template-columns: 78px minmax(0, 1fr); }
+  .tb h1 { font-size: 38px; } .inv { font-size: 14px; }
+  #go .act { font-size: 20px; }
+}
+
+/* a short phone (Safari with its bars): keep the plan at least ~240 px wide */
+@media (max-width: 599px) and (max-height: 720px) {
+  .tb h1 { font-size: 34px; }
+  .tb .hd { padding-top: 5px; }
+  .inv { font-size: 13.5px; padding-bottom: 6px; }
+  .fl > div { min-height: 20px; padding: 2px 0 1px; } .fl .opt { display: none; }
+  .grid { grid-template-columns: minmax(0, 1fr) 120px; }
+  #go { min-height: 0; } #go .act { font-size: 19px; }
+  .sname { padding-top: 6px; padding-bottom: 4px; }
+}

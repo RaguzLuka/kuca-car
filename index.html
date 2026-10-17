@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kuća Car · Supetar</title>
+<meta name="description" content="Kuća Car u Supetru na Braču: šetnja 360°, 3D tlocrt i zgrada u tri doba dana.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tour.css">
+<link rel="stylesheet" href="css/gate.css">
+<link rel="preload" as="image" href="plan/ground.webp" fetchpriority="high">
+</head>
+<body class="m-setnja">
+<canvas id="view" tabindex="0" aria-label="Panorama 360°: povuci za razgledavanje, strelice za okret i korak"></canvas>
+<svg id="marks" aria-hidden="true"></svg>
+<div id="tip"><span></span><i></i></div>
+
+<div id="aer" aria-label="Zgrada 360°: povuci lijevo-desno za okretanje"><canvas></canvas></div>
+<nav id="dial" aria-label="Kut gledanja zgrade"></nav>
+
+<div id="plan">
+  <div class="pv" id="planview" aria-label="Tlocrt: točke otvaraju šetnju"></div>
+  <div class="north" id="north"></div>
+  <div id="scale"><span>5 m</span><i></i></div>
+</div>
+
+<header id="plate" class="plate">
+  <div class="ttl"><h1>Kuća Car</h1><span class="k">Supetar · Brač</span></div>
+  <button id="here" aria-expanded="false" aria-controls="rooms">
+    <span class="k" id="lvl">Prizemlje ±0,00</span><b id="room">—</b>
+    <svg viewBox="0 0 11 7" aria-hidden="true"><path d="M1 1l4.5 4.5L10 1"/></svg>
+  </button>
+</header>
+<nav id="rooms" class="plate" aria-label="Prostori"></nav>
+
+<nav id="modes" class="row" aria-label="Način prikaza">
+  <button data-mode="setnja" aria-pressed="true">Šetnja</button>
+  <button data-mode="tlocrt" aria-pressed="false">Tlocrt</button>
+  <button data-mode="zgrada" aria-pressed="false">Zgrada 360</button>
+</nav>
+<nav id="times" class="row" aria-label="Doba dana"></nav>
+<nav id="floors" class="row" aria-label="Etaža"></nav>
+
+<aside id="mini" class="plate" aria-label="Položaj na tlocrtu">
+  <div class="head"><span class="k">Tlocrt</span><span class="k" id="minifl"></span></div>
+  <div class="pv" id="minimap" role="button" tabindex="0" aria-label="Otvori tlocrt"></div>
+</aside>
+
+<div id="hint" class="plate off"></div>
+<div id="bar"></div>
+<div id="vids"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="coneg" cx="0" cy="0" r="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#3d5a48" stop-opacity=".55"/><stop offset="1" stop-color="#3d5a48" stop-opacity=".08"/>
+    </radialGradient>
+  </defs>
+</svg>
+
+<svg id="wipe" aria-hidden="true"></svg>
+
+<main id="gate" aria-labelledby="gate-title">
+  <div class="sheet" id="sheet">
+    <div class="frame" aria-hidden="true">
+      <i class="v" style="left:25%"></i><i class="v" style="left:50%"></i><i class="v" style="left:77.4%"></i>
+      <i class="v b" style="left:25%"></i><i class="v b" style="left:50%"></i><i class="v b" style="left:77.4%"></i>
+      <i class="h" style="top:50%"></i>
+    </div>
+
+    <section class="field" id="field" aria-label="Tlocrt prizemlja: crtež, pa render odozgo">
+      <div class="plot" id="plot">
+        <div class="rbox" id="rbox"><img id="cover" src="plan/ground.webp" width="2400" height="1500" decoding="async" fetchpriority="high"
+          alt="Kuća Car odozgo: prizemlje s bazenom, terasom i vrtom"></div>
+        <svg id="ink" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+        <svg id="mark" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+      </div>
+    </section>
+
+    <div class="side" id="side">
+      <figure class="a050" id="a050">
+        <div class="im"><img data-src="img/a050_zalazak.webp" alt="Kuća Car iz zraka na zalasku: krov od kupa kanalica, zidovi od bračkog kamena, bazen"></div>
+        <figcaption><b>Prostorni prikaz</b><span>zalazak 20:00</span></figcaption>
+      </figure>
+
+      <nav class="index" aria-label="Sadržaj lista">
+        <h2>Sadržaj</h2>
+        <ol>
+          <li><button class="ent" type="button" data-m="setnja" disabled><span class="k num">A360.1</span><span>Šetnja kroz kuću</span><span class="v num">39 točaka</span><svg viewBox="0 0 8 10" aria-hidden="true"><path d="M0 0L8 5L0 10Z"/></svg></button></li>
+          <li><button class="ent" type="button" data-m="tlocrt" disabled><span class="k num">A360.2</span><span>Tlocrt prizemlja i kata</span><span class="v num">+0,00 · +2,88</span><svg viewBox="0 0 8 10" aria-hidden="true"><path d="M0 0L8 5L0 10Z"/></svg></button></li>
+          <li><button class="ent" type="button" data-m="zgrada" disabled><span class="k num">A360.3</span><span>Kuća izvana</span><span class="v num">72 pogleda</span><svg viewBox="0 0 8 10" aria-hidden="true"><path d="M0 0L8 5L0 10Z"/></svg></button></li>
+        </ol>
+      </nav>
+
+      <div class="sname">
+        <p class="notes"><span class="cap" id="covercap">Render. Kuća još nije sagrađena.</span>
+          <span class="small">Vizualizacija prema idejnom rješenju. Oprema, raslinje i okoliš prikazani su ilustrativno.</span></p>
+        <span class="mnv num">±0,00 = +43,41 m.n.v.</span>
+      </div>
+
+      <section class="tb" aria-label="Zaglavlje lista">
+        <div class="hd">
+          <h1 id="gate-title">Kuća Car</h1>
+          <div class="sn"><h2>Tlocrt prizemlja</h2><span class="mj">mjerilo: <b class="num">1 : 1</b></span></div>
+        </div>
+        <p class="inv" id="inv">Šetnja kreće od bazena, kroz vrt u kuću.</p>
+        <div class="grid">
+          <dl class="fl">
+            <div><dt>lokacija:</dt><dd>Supetar · otok Brač</dd></div>
+            <div><dt>faza:</dt><dd>idejno rješenje</dd></div>
+            <div><dt>etaže:</dt><dd class="num">P + 1</dd></div>
+            <div><dt>točke šetnje:</dt><dd class="num"><i class="ring" aria-hidden="true"></i><span id="npts">39</span></dd></div>
+            <div><dt>doba dana:</dt><dd><span class="num" id="ntimes">3</span><small id="wtimes">popodne · zalazak · noć</small></dd></div>
+          </dl>
+          <button id="go" type="button" disabled aria-labelledby="status" aria-describedby="inv">
+            <span class="lay base">
+              <span class="no" aria-hidden="true"><small>broj nacrta:</small><b class="num">A360</b></span>
+              <span class="act" id="status" aria-live="polite">Učitavam…</span>
+              <span class="ulaz" aria-hidden="true"><i>ULAZ</i><svg viewBox="0 0 11 13"><path d="M0 0L11 6.5L0 13Z"/></svg></span>
+            </span>
+            <span class="lay ink" aria-hidden="true">
+              <span class="no"><small>broj nacrta:</small><b class="num">A360</b></span>
+              <span class="act" id="status2">Učitavam…</span>
+              <span class="ulaz"><i>ULAZ</i><svg viewBox="0 0 11 13"><path d="M0 0L11 6.5L0 13Z"/></svg></span>
+            </span>
+          </button>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+import { start } from './js/tour.js';
+import { initGate } from './js/gate.js';
+const gate = initGate();
+const fail = (e) => { gate.progress('Greška: ' + (e && (e.message || e.reason?.message || e.reason || e))); console.error(e); };
+addEventListener('unhandledrejection', fail);
+if (matchMedia('(pointer: coarse)').matches) document.body.classList.add('touch');
+try {
+  const app = await start(gate.progress);
+  window.app = app;
+  gate.ready(app);
+  if (new URLSearchParams(location.search).has('skip')) gate.skip();
+} catch (e) { fail(e); }
+</script>
+</body>
+</html>
