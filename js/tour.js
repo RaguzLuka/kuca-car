@@ -24,6 +24,7 @@ const levelOf = (p) => (p.zone === 'okucnica' ? 'Okućnica · ' + FL[floorOf(p)]
 export async function start(progress) {
   let time = TIMES.some((t) => t.id === Q.get('t')) ? Q.get('t') : DEFAULT_TIME;
   let mode = null, cur = null, fade = null, dirty = true, token = 0, want = null, fovSet = false;
+  let sway = null;                              // the way in: the first view swings slowly to either side
   const view = { yaw: 0, pitch: 0, fov: 72, w: innerWidth, h: innerHeight };
   const hist = [], uploads = [];
   const defFov = () => (portrait() ? 92 : 72);
@@ -219,7 +220,7 @@ export async function start(progress) {
 
   let ttKey = 0;
   addEventListener('keydown', (e) => {
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.metaKey || e.ctrlKey || e.altKey || sway) return;
     const k = e.key;
     if (k === 'Escape') { rooms(false); return; }
     if (mode === 'zgrada' && (k === 'ArrowLeft' || k === 'ArrowRight')) {
@@ -244,6 +245,10 @@ export async function start(progress) {
     requestAnimationFrame(frame);
     const dt = Math.min(0.1, (now - last) / 1000); last = now;
     if (mode !== 'setnja') return;
+    if (sway && cur && !fade) {
+      if (sway.y0 == null) sway.y0 = view.yaw;
+      sway.t += dt; view.yaw = sway.y0 + 0.3 * Math.sin((sway.t / 44) * 2 * Math.PI); dirty = true;
+    }
     spin += ((keys.r - keys.l) * 1.35 - spin) * Math.min(1, dt * 7);
     if (Math.abs(spin) > 0.002) { view.yaw += spin * dt; dirty = true; } else spin = 0;
     if (!drag && (Math.abs(vel.y) > 0.005 || Math.abs(vel.p) > 0.005)) {
@@ -278,6 +283,7 @@ export async function start(progress) {
   let hintT = 0;
   function hint(text, ms = 0) { clearTimeout(hintT); hintEl.textContent = text; hintEl.classList.toggle('off', !text); if (ms) hintT = setTimeout(hintOff, ms); }
   function hintOff() { clearTimeout(hintT); hintEl.classList.add('off'); }
+  const walkHint = () => hint(touch ? 'Povuci za pogled · dodirni krug na podu za korak' : 'Povuci za pogled · klik na krug za korak · ← → okret · ↑ naprijed · ↓ natrag', 7000);
   const bar = (on) => $('#bar').classList.toggle('on', on);
 
   function here() {
@@ -340,7 +346,7 @@ export async function start(progress) {
       tt.close(); dirty = true;
       if (id) go(id, how || 'jump'); else if (!cur) go(P[Q.get('p')] ? Q.get('p') : START, 'first');
       mini(false);
-      hint(touch ? 'Povuci za pogled · dodirni krug na podu za korak' : 'Povuci za pogled · klik na krug za korak · ← → okret · ↑ naprijed · ↓ natrag', 7000);
+      walkHint();
     } else if (m === 'tlocrt') {
       tt.close(); const c = cur || P[Q.get('p')]; showFloor(c ? floorOf(c) : 'ground');
       hint(touch ? 'Dodirni točku za šetnju 360° · raširi prste za uvećanje' : 'Klikni točku za šetnju 360° · kotačić za uvećanje', 5000);
@@ -390,5 +396,7 @@ export async function start(progress) {
       go(first, 'first', Q.has('h') ? (+Q.get('h') || 0) * D : null);   // supersedes the default one setMode asked for
       setTimeout(() => tt.set(time), 1200);     // turntable previews, quietly
     },
+    sway(on) { sway = on ? { t: 0, y0: null } : null; },
+    enter() { sway = null; keepUrl(); if (mode === 'setnja') walkHint(); },   // the title is gone: the walk is yours
   };
 }
